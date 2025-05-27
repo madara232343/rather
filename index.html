@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Play the ultimate Would You Rather game with 50+ fun questions across technology, food, fashion, lifestyle, and movies categories. Enjoy voice narration and animated UI." />
+<title>Would You Rather? - Fun Question Game</title>
+
+<style>
+  /* Google font */
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
+    background-size: 400% 400%;
+    animation: gradient 20s ease infinite;
+    color: #222;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 140px; /* bottom padding for review */
+  }
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Container */
+  .container {
+    background: rgba(255, 255, 255, 0.95);
+    max-width: 700px;
+    width: 100%;
+    border-radius: 25px;
+    padding: 3rem 2rem;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  h1 {
+    font-weight: 600;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #ff6b81;
+    text-shadow: 0 0 8px #ff6b81aa;
+    animation: fadeInDown 0.8s ease forwards;
+    opacity: 0;
+  }
+
+  select {
+    font-size: 1.1rem;
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    border: 2px solid #ff6b81;
+    outline: none;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    background: white;
+    color: #444;
+    font-weight: 600;
+    transition: border-color 0.3s ease;
+  }
+  select:hover, select:focus {
+    border-color: #ff4757;
+  }
+
+  .question {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 2.5rem;
+    min-height: 72px;
+    color: #333;
+    animation: fadeInUp 1s ease forwards;
+    opacity: 0;
+  }
+
+  .option-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  button.option-btn {
+    background-color: #ff6b81;
+    border: none;
+    color: white;
+    padding: 1rem 2.5rem;
+    font-size: 1.2rem;
+    border-radius: 18px;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 5px 15px #ff6b81aa;
+    transition: transform 0.25s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+    flex: 1 1 250px;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  button.option-btn:hover:not(:disabled) {
+    background-color: #ff4757;
+    box-shadow: 0 8px 24px #ff4757cc;
+    transform: translateY(-5px);
+  }
+  button.option-btn:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+  button.option-btn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px #ff4757cc;
+  }
+  /* Percentage bar below option text */
+  .percent-bar {
+    background: #ff4757aa;
+    height: 6px;
+    border-radius: 3px;
+    margin-top: 8px;
+    width: 0%;
+    transition: width 1s ease;
+  }
+
+  #result {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-top: 1.3rem;
+    color: #555;
+    min-height: 40px;
+    transition: opacity 0.5s ease;
+    opacity: 0;
+  }
+  #result.visible {
+    opacity: 1;
+  }
+
+  button#nextBtn {
+    background-color: #4a90e2;
+    margin-top: 1.7rem;
+    padding: 1rem 3rem;
+    box-shadow: 0 5px 15px #4a90e2aa;
+    border-radius: 18px;
+    border: none;
+    font-weight: 700;
+    font-size: 1.25rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  button#nextBtn:hover {
+    background-color: #357ABD;
+    box-shadow: 0 8px 24px #357ABDcc;
+  }
+
+  /* Animations for texts */
+  @keyframes fadeInDown {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Emoji shower */
+  .emoji-shower {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 0;
+  }
+  .emoji {
+    position: absolute;
+    font-size: 2.4rem;
+    user-select: none;
+    opacity: 0.8;
+    animation: floatUp linear forwards;
+    will-change: transform, opacity;
+    filter: drop-shadow(0 0 2px #ff6b81);
+  }
+  @keyframes floatUp {
+    0% {
+      transform: translateY(100vh) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-10vh) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  /* Review fixed bottom panel */
+  #reviewPanel {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #fff;
+    border-top: 1px solid #ccc;
+    padding: 12px 16px;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    z-index: 10000;
+  }
+  #reviewToggleBtn {
+    padding: 8px 14px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #0077cc;
+    background: #0077cc;
+    color: white;
+    user-select: none;
+    cursor: pointer;
+  }
+  #reviewToggleBtn:hover {
+    background: #005fa3;
+  }
+  #reviewContent {
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgb(0 0 0 / 0.15);
+    width: 320px;
+    max-width: 90vw;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 10001;
+  }
+  #reviewContent.active {
+    display: flex;
+  }
+  #reviewContent .stars {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+  }
+  .star {
+    font-size: 28px;
+    color: #ccc;
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    transition: color 0.3s ease;
+  }
+  .star.filled {
+    color: gold;
+  }
+  #reviewText {
+    width: 100%;
+    resize: vertical;
+    padding: 8px;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    min-height: 60px;
+    font-family: inherit;
+  }
+  #submitReviewBtn {
+    background: #28a745;
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  #submitReviewBtn:hover {
+    background: #218838;
+  }
+  #reviewThanks {
+    color: green;
+    font-weight: bold;
+    display: none;
+    text-align: center;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    h1 {
+      font-size: 2.4rem;
+    }
+    .question {
+      font-size: 1.4rem;
+      min-height: auto;
+    }
+    button.option-btn {
+      flex: 1 1 100%;
+      max-width: 100%;
+    }
+    #reviewContent {
+      width: 90vw;
+      bottom: 70px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<main class="container" role="main" aria-label="Would You Rather Question Game">
+  <h1>Would You Rather?</h1>
+  <label for="categorySelect" class="visually-hidden">Select question category</label>
+  <select id="categorySelect" aria-live="polite" aria-label="Select question category">
+    <option value="technology">Technology</option>
+    <option value="food">Food</option>
+    <option value="fashion">Fashion</option>
+    <option value="lifestyle">Lifestyle</option>
+    <option value="movies">Movies</option>
+  </select>
+
+  <section aria-live="polite" aria-atomic="true">
+    <div id="question" class="question" tabindex="0"></div>
+    <div class="option-buttons" role="radiogroup" aria-labelledby="question">
+      <button class="option-btn" id="option1" aria-checked="false" role="radio" aria-describedby="percent1"></button>
+      <div class="percent-bar" id="percent1" aria-hidden="true"></div>
+
+      <button class="option-btn" id="option2" aria-checked="false" role="radio" aria-describedby="percent2"></button>
+      <div class="percent-bar" id="percent2" aria-hidden="true"></div>
+    </div>
+    <div id="result" aria-live="assertive" aria-atomic="true"></div>
+
+    <button id="nextBtn" disabled aria-disabled="true" aria-label="Next question">Next</button>
+  </section>
+</main>
+
+<div id="emojiShower" class="emoji-shower" aria-hidden="true"></div>
+
+<!-- Review Panel -->
+<section id="reviewPanel" aria-label="Review and rating panel">
+  <button id="reviewToggleBtn" aria-expanded="false" aria-controls="reviewContent" aria-haspopup="dialog">Give a Review ★</button>
+</section>
+<section id="reviewContent" role="dialog" aria-modal="true" aria-labelledby="reviewTitle" tabindex="-1">
+  <h2 id="reviewTitle">Rate & Review</h2>
+  <div class="stars" role="radiogroup" aria-label="Star rating">
+    <span class="star" role="radio" tabindex="0" aria-checked="false" data-value="1" aria-label="1 star">★</span>
+    <span class="star" role="radio" tabindex="-1" aria-checked="false" data-value="2" aria-label="2 stars">★</span>
+    <span class="star" role="radio" tabindex="-1" aria-checked="false" data-value="3" aria-label="3 stars">★</span>
+    <span class="star" role="radio" tabindex="-1" aria-checked="false" data-value="4" aria-label="4 stars">★</span>
+    <span class="star" role="radio" tabindex="-1" aria-checked="false" data-value="5" aria-label="5 stars">★</span>
+  </div>
+  <textarea id="reviewText" placeholder="Write your review here..."></textarea>
+  <button id="submitReviewBtn">Submit Review</button>
+  <p id="reviewThanks" role="alert" aria-live="assertive">Thank you for your review!</p>
+</section>
+
+<script>
+(() => {
+  'use strict';
+
+  // Questions data with 10+ per category
+  const questions = {
+    technology: [
+      { option1: "Use only smartphones forever", option2: "Use only laptops forever" },
+      { option1: "Have a robot assistant", option2: "Have a flying car" },
+      { option1: "Live without internet", option2: "Live without electricity" },
+      { option1: "Work only with AI tools", option2: "Work only with human tools" },
+      { option1: "Program in Python forever", option2: "Program in JavaScript forever" },
+      { option1: "Wear VR headset daily", option2: "Wear AR glasses daily" },
+      { option1: "Have a smart home", option2: "Have a smart office" },
+      { option1: "Own a drone", option2: "Own a 3D printer" },
+      { option1: "Use social media nonstop", option2: "Avoid social media forever" },
+      { option1: "Be a cybersecurity expert", option2: "Be a hardware engineer" },
+      { option1: "Always upgrade to the latest phone", option2: "Always keep your old reliable phone" }
+    ],
+    food: [
+      { option1: "Eat only sweet food", option2: "Eat only savory food" },
+      { option1: "Eat pizza for every meal", option2: "Eat burgers for every meal" },
+      { option1: "Never eat chocolate again", option2: "Never eat cheese again" },
+      { option1: "Cook all meals yourself", option2: "Order takeout forever" },
+      { option1: "Eat spicy food daily", option2: "Avoid spicy food forever" },
+      { option1: "Eat breakfast for dinner", option2: "Eat dinner for breakfast" },
+      { option1: "Drink only water", option2: "Drink only soda" },
+      { option1: "Eat at a fancy restaurant once a week", option2: "Eat at fast food daily" },
+      { option1: "Be a vegan", option2: "Be a meat lover" },
+      { option1: "Try exotic foods", option2: "Stick to comfort foods" },
+      { option1: "Always eat organic", option2: "Always eat fast food" }
+    ],
+    fashion: [
+      { option1: "Wear bright colors every day", option2: "Wear only black and white" },
+      { option1: "Dress formally every day", option2: "Dress casually every day" },
+      { option1: "Wear sneakers only", option2: "Wear boots only" },
+      { option1: "Follow trends strictly", option2: "Create your own style" },
+      { option1: "Wear hats daily", option2: "Never wear hats" },
+      { option1: "Wear vintage clothes", option2: "Wear modern fashion only" },
+      { option1: "Wear jewelry daily", option2: "Avoid jewelry" },
+      { option1: "Shop online only", option2: "Shop in stores only" },
+      { option1: "Wear glasses as fashion", option2: "Wear contacts only" },
+      { option1: "Have a minimalist wardrobe", option2: "Have a very large wardrobe" },
+      { option1: "Wear perfumes daily", option2: "Never wear perfumes" }
+    ],
+    lifestyle: [
+      { option1: "Live in the city", option2: "Live in the countryside" },
+      { option1: "Travel constantly", option2: "Stay home mostly" },
+      { option1: "Be a morning person", option2: "Be a night owl" },
+      { option1: "Have a strict routine", option2: "Be spontaneous" },
+      { option1: "Live alone", option2: "Live with roommates" },
+      { option1: "Own pets", option2: "Avoid pets" },
+      { option1: "Exercise daily", option2: "Relax daily" },
+      { option1: "Read books", option2: "Watch movies" },
+      { option1: "Eat out often", option2: "Cook at home often" },
+      { option1: "Use public transport", option2: "Drive everywhere" },
+      { option1: "Use minimal tech", option2: "Use max tech" }
+    ],
+    movies: [
+      { option1: "Watch only comedies", option2: "Watch only thrillers" },
+      { option1: "Watch movies in theater", option2: "Watch movies at home" },
+      { option1: "Prefer series over movies", option2: "Prefer movies over series" },
+      { option1: "Watch only new releases", option2: "Watch classic movies only" },
+      { option1: "Watch with subtitles", option2: "Watch dubbed versions" },
+      { option1: "Rewatch favorite movies", option2: "Always watch new movies" },
+      { option1: "Watch sci-fi movies", option2: "Watch romance movies" },
+      { option1: "Watch documentaries", option2: "Watch action movies" },
+      { option1: "Prefer long movies", option2: "Prefer short movies" },
+      { option1: "Watch animated movies", option2: "Watch live-action movies" },
+      { option1: "Watch independent films", option2: "Watch blockbuster films" }
+    ]
+  };
+
+  // Track votes count (simulate for percentages)
+  // We'll store vote counts in localStorage keyed by category + question index
+  // For demo, initial votes will be random between 20-50 per option
+
+  // Get elements
+  const categorySelect = document.getElementById('categorySelect');
+  const questionEl = document.getElementById('question');
+  const option1Btn = document.getElementById('option1');
+  const option2Btn = document.getElementById('option2');
+  const percent1Bar = document.getElementById('percent1');
+  const percent2Bar = document.getElementById('percent2');
+  const resultEl = document.getElementById('result');
+  const nextBtn = document.getElementById('nextBtn');
+  const emojiShower = document.getElementById('emojiShower');
+
+  // Review panel elements
+  const reviewToggleBtn = document.getElementById('reviewToggleBtn');
+  const reviewContent = document.getElementById('reviewContent');
+  const stars = reviewContent.querySelectorAll('.star');
+  const reviewText = document.getElementById('reviewText');
+  const submitReviewBtn = document.getElementById('submitReviewBtn');
+  const reviewThanks = document.getElementById('reviewThanks');
+
+  // State variables
+  let currentCategory = categorySelect.value;
+  let currentIndex = 0;
+  let answered = false;
+  let votesData = {}; // structure: votesData[category][index] = {option1: number, option2: number}
+  let speechSynth = window.speechSynthesis;
+  let femaleVoice = null;
+
+  // Accessibility helpers
+  function setRadioChecked(button, checked) {
+    button.setAttribute('aria-checked', checked ? 'true' : 'false');
+  }
+
+  // Load or initialize votesData from localStorage or random initial data
+  function loadVotes() {
+    const saved = localStorage.getItem('wouldYouRatherVotes');
+    if (saved) {
+      try {
+        votesData = JSON.parse(saved);
+        return;
+      } catch {
+        votesData = {};
+      }
+    }
+    // Initialize random votes data
+    votesData = {};
+    for (const cat in questions) {
+      votesData[cat] = [];
+      questions[cat].forEach(() => {
+        const option1Votes = 20 + Math.floor(Math.random() * 31);
+        const option2Votes = 20 + Math.floor(Math.random() * 31);
+        votesData[cat].push({ option1: option1Votes, option2: option2Votes });
+      });
+    }
+  }
+  function saveVotes() {
+    localStorage.setItem('wouldYouRatherVotes', JSON.stringify(votesData));
+  }
+
+  // Show question and options
+  function showQuestion() {
+    answered = false;
+    nextBtn.disabled = true;
+    nextBtn.setAttribute('aria-disabled', 'true');
+    resultEl.textContent = '';
+    resultEl.classList.remove('visible');
+
+    // Reset buttons
+    option1Btn.disabled = false;
+    option2Btn.disabled = false;
+    setRadioChecked(option1Btn, false);
+    setRadioChecked(option2Btn, false);
+    percent1Bar.style.width = '0%';
+    percent2Bar.style.width = '0%';
+
+    const q = questions[currentCategory][currentIndex];
+    questionEl.textContent = `Would you rather ${q.option1.toLowerCase()} or ${q.option2.toLowerCase()}?`;
+    option1Btn.textContent = q.option1;
+    option2Btn.textContent = q.option2;
+
+    // Accessibility focus question
+    questionEl.focus();
+
+    // Speak question female voice
+    speakText(questionEl.textContent);
+
+    // Reset percent bars aria labels
+    percent1Bar.setAttribute('aria-label', `0% chosen for option 1`);
+    percent2Bar.setAttribute('aria-label', `0% chosen for option 2`);
+  }
+
+  // Speak text with female voice if available
+  function speakText(text) {
+    if (!speechSynth) return;
+    speechSynth.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    if (femaleVoice) {
+      utterance.voice = femaleVoice;
+    }
+    speechSynth.speak(utterance);
+  }
+
+  // Find female voice once voices load
+  function loadVoices() {
+    return new Promise(resolve => {
+      let voices = speechSynth.getVoices();
+      if (voices.length) {
+        femaleVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female')) || voices.find(v => v.lang.startsWith('en'));
+        resolve();
+      } else {
+        speechSynth.onvoiceschanged = () => {
+          voices = speechSynth.getVoices();
+          femaleVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female')) || voices.find(v => v.lang.startsWith('en'));
+          resolve();
+        };
+      }
+    });
+  }
+
+  // Handle option selection
+  function selectOption(optionNumber) {
+    if (answered) return;
+    answered = true;
+
+    // Update votes
+    const voteObj = votesData[currentCategory][currentIndex];
+    if (optionNumber === 1) {
+      voteObj.option1++;
+    } else {
+      voteObj.option2++;
+    }
+    saveVotes();
+
+    // Calculate percentages
+    const totalVotes = voteObj.option1 + voteObj.option2;
+    const percent1 = Math.round((voteObj.option1 / totalVotes) * 100);
+    const percent2 = 100 - percent1;
+
+    // Show bars
+    percent1Bar.style.width = percent1 + '%';
+    percent2Bar.style.width = percent2 + '%';
+
+    // Show result text with percentage
+    resultEl.textContent = `Option 1 chosen by ${percent1}%, Option 2 chosen by ${percent2}%.`;
+    resultEl.classList.add('visible');
+
+    // Disable buttons
+    option1Btn.disabled = true;
+    option2Btn.disabled = true;
+
+    // Set ARIA for selected option
+    setRadioChecked(option1Btn, optionNumber === 1);
+    setRadioChecked(option2Btn, optionNumber === 2);
+
+    // Enable Next button
+    nextBtn.disabled = false;
+    nextBtn.setAttribute('aria-disabled', 'false');
+
+    // Celebrate with emojis
+    triggerEmojiShower();
+
+    // Announce result via TTS
+    speakText(`You chose option ${optionNumber}. ${resultEl.textContent}`);
+  }
+
+  // Next question logic
+  function nextQuestion() {
+    currentIndex++;
+    if (currentIndex >= questions[currentCategory].length) {
+      currentIndex = 0; // Loop around
+    }
+    showQuestion();
+  }
+
+  // Category change
+  categorySelect.addEventListener('change', e => {
+    currentCategory = e.target.value;
+    currentIndex = 0;
+    showQuestion();
+  });
+
+  // Option buttons events
+  option1Btn.addEventListener('click', () => selectOption(1));
+  option2Btn.addEventListener('click', () => selectOption(2));
+
+  // Keyboard accessibility for options (Enter or Space)
+  [option1Btn, option2Btn].forEach(btn => {
+    btn.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        btn.click();
+      }
+    });
+  });
+
+  // Next button
+  nextBtn.addEventListener('click', nextQuestion);
+
+  // Emoji shower animation
+  function triggerEmojiShower() {
+    const emojis = ['🎉', '✨', '🎈', '🥳', '🎊'];
+    const count = 30;
+    emojiShower.innerHTML = '';
+    emojiShower.style.display = 'block';
+    emojiShower.setAttribute('aria-hidden', 'true');
+
+    for (let i = 0; i < count; i++) {
+      const emoji = document.createElement('div');
+      emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      emoji.classList.add('emoji');
+      emoji.style.left = Math.random() * 100 + 'vw';
+      emoji.style.animationDuration = (2 + Math.random() * 2) + 's';
+      emojiShower.appendChild(emoji);
+    }
+
+    setTimeout(() => {
+      emojiShower.style.display = 'none';
+      emojiShower.innerHTML = '';
+    }, 4000);
+  }
+
+  // Review panel toggle
+  reviewToggleBtn.addEventListener('click', () => {
+    const expanded = reviewToggleBtn.getAttribute('aria-expanded') === 'true';
+    reviewToggleBtn.setAttribute('aria-expanded', (!expanded).toString());
+    if (!expanded) {
+      reviewContent.style.display = 'block';
+      reviewContent.focus();
+    } else {
+      reviewContent.style.display = 'none';
+    }
+  });
+
+  // Star rating keyboard and click handling
+  stars.forEach((star, i) => {
+    star.addEventListener('click', () => {
+      setRating(i + 1);
+    });
+    star.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        setRating(i + 1);
+      }
+    });
+  });
+
+  function setRating(rating) {
+    stars.forEach((star, i) => {
+      const checked = i < rating;
+      star.setAttribute('aria-checked', checked ? 'true' : 'false');
+      star.tabIndex = checked ? 0 : -1;
+      star.style.color = checked ? '#ff9800' : '#ddd';
+    });
+    stars[rating - 1].focus();
+    reviewContent.dataset.rating = rating;
+  }
+
+  // Submit review
+  submitReviewBtn.addEventListener('click', () => {
+    const rating = parseInt(reviewContent.dataset.rating, 10);
+    const text = reviewText.value.trim();
+    if (!rating) {
+      alert('Please select a star rating before submitting.');
+      return;
+    }
+    // For demo: just show thank you message and clear inputs
+    reviewThanks.style.display = 'block';
+    setTimeout(() => {
+      reviewThanks.style.display = 'none';
+    }, 4000);
+    setRating(0);
+    reviewText.value = '';
+    reviewContent.style.display = 'none';
+    reviewToggleBtn.setAttribute('aria-expanded', 'false');
+  });
+
+  // Initialize app
+  (async () => {
+    await loadVoices();
+    loadVotes();
+    showQuestion();
+  })();
+
+})();
+</script>
+
+</body>
+</html>
